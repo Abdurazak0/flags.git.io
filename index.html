@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>countries</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+    crossorigin="anonymous"
+  />
+  <style>
+    body {
+      background-color: beige;
+      color: white;
+    }
+
+    .country-card {
+      background-color: #333;
+      cursor: pointer;
+    }
+
+    .country-card:hover {
+      background-color: #098292;
+    }
+
+    .details-section {
+      background-color: beige;
+      color: white;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .country-details-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      background-color: rgb(8, 114, 117);
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .country-details-item img {
+      max-width: 100px;
+      margin-right: 20px;
+    }
+
+    .country-details-item p {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8">
+        <div class="row" id="countryCards"></div>
+      </div>
+      <div class="col-md-4">
+        <div class="row mt-4" id="countryDetails"></div>
+      </div>
+    </div>
+  </div>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"
+  ></script>
+  <script>
+    const countryCardsContainer = document.getElementById("countryCards");
+    const countryDetailsContainer = document.getElementById("countryDetails");
+
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://restcountries.com/v2/all");
+        const data = await response.json();
+        displayCountryCards(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    const displayCountryCards = (countries) => {
+      countries.forEach((country) => {
+        const card = document.createElement("div");
+        card.className = "country-card card col-md-3 m-3";
+        card.style.width = "15rem";
+
+        const flag = document.createElement("img");
+        flag.className = "card-img-top col-4 pt-5";
+        flag.src = country.flag;
+
+        const cardBody = document.createElement("div");
+        cardBody.className = "card-body";
+
+        const countryName = document.createElement("p");
+        countryName.className = "card-text";
+        countryName.textContent = country.name;
+
+        cardBody.appendChild(countryName);
+        card.appendChild(flag);
+        card.appendChild(cardBody);
+
+        card.addEventListener("click", () => {
+          displayCountryDetails(country);
+        });
+
+        countryCardsContainer.appendChild(card);
+      });
+    };
+
+    const displayCountryDetails = (country) => {
+      const detailsItem = document.createElement("div");
+      detailsItem.className = "country-details-item";
+
+      detailsItem.innerHTML = `
+        <img src="${country.flag}" alt="${country.name} flag">
+        <div>
+          <h2>${country.name}</h2>
+          <p>Capital: ${country.capital}</p>
+          <p>Population: ${country.population}</p>
+          <p>Region: ${country.region}</p>
+          <p>Country Code (2): ${country.alpha2Code}</p>
+          <p>Country Code (3): ${country.alpha3Code}</p>
+          <!-- Add more details as needed -->
+        </div>
+      `;
+
+      countryDetailsContainer.innerHTML = '';
+      countryDetailsContainer.appendChild(detailsItem);
+    };
+
+    fetchData();
+  </script>
+
+<script>
+	
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+</body>
+</html>
